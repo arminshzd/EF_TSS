@@ -26,7 +26,7 @@ class EF_TSS:
         self.R_trust = settings_dict['trust-radius'] if not (settings_dict['trust-radius'] == '') else 1
         self.R_conv = settings_dict['conv-radius'] if not (settings_dict['conv-radius'] == '') else 1e-6
         self.G_conv = settings_dict['conv-grad'] if not (settings_dict['conv-grad'] == '') else 1e-6
-        self.max_iter = settings_dict['max-iter'] if not (settings_dict['conv-grad'] == '') else 1e-6
+        self.max_iter = settings_dict['max-iter'] if not (settings_dict['max-iter'] == '') else 10
 
         self.basis_dir = Path(settings_dict['working-dir']) / (settings_dict['basis-f-name']) if not (settings_dict['basis-f-name'] == '') else ''
         self.hist_file = Path(settings_dict['working-dir']) / ((settings_dict['history-f-name'] + '.xyz') if not (settings_dict['history-f-name'] == '') else 'history.xyz')
