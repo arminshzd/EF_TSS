@@ -20,18 +20,24 @@ class EF_TSS:
             settings_dict[key] = val
         
         self.N = settings_dict['N']
-        self.basis = settings_dict['basis']
+        self.charge = settings_dict['charge'] if not (settings_dict['charge'] == '') else 0
+        self.spin = settings_dict['spin'] if not (settings_dict['spin'] == '') else 1
+        self.N_procs = settings_dict['N-procs'] if not (settings_dict['N-procs'] == '') else 8
         self.R_trust = settings_dict['trust-radius'] if not (settings_dict['trust-radius'] == '') else 1
         self.R_conv = settings_dict['conv-radius'] if not (settings_dict['conv-radius'] == '') else 1e-6
         self.G_conv = settings_dict['conv-grad'] if not (settings_dict['conv-grad'] == '') else 1e-6
         self.max_iter = settings_dict['max-iter'] if not (settings_dict['conv-grad'] == '') else 1e-6
 
+        self.basis_dir = Path(settings_dict['working-dir']) / (settings_dict['basis-f-name']) if not (settings_dict['basis-f-name'] == '') else ''
         self.hist_file = Path(settings_dict['working-dir']) / ((settings_dict['history-f-name'] + '.xyz') if not (settings_dict['history-f-name'] == '') else 'history.xyz')
         self.gjf_dir = Path(settings_dict['working-dir']) / ((settings_dict['gaussian-f-name'] + '.gjf') if not (settings_dict['gaussian-f-name'] == '') else 'in.gjf')
         self.log_dir = Path(settings_dict['working-dir']) / ((settings_dict['gaussian-f-name'] + '.log') if not (settings_dict['gaussian-f-name'] == '') else 'in.log')
         self.chk_dir = Path(settings_dict['working-dir']) / ((settings_dict['gaussian-f-name'] + '.chk') if not (settings_dict['gaussian-f-name'] == '') else 'in.chk')
         self.fchk_dir = Path(settings_dict['working-dir']) / ((settings_dict['gaussian-f-name'] + '.fchk') if not (settings_dict['gaussian-f-name'] == '') else 'in.fchk')
+        self.submit_dir = settings_dict['submit-f-dir']
 
+        self.force_calc_header = settings_dict['force-header-calc'] if not (settings_dict['force-header-calc'] == '') else "#P wB97XD/6-31G** nosymm" 
+        self.hess_calc_header = settings_dict['hess-header-calc'] if not (settings_dict['force-header-calc'] == '') else "#P wB97XD/6-31G** nosymm freq"
 
         self.init_coords, self.atom_types, self.periphery = self._read_coords(initial_structure)
 
@@ -52,8 +58,8 @@ class EF_TSS:
         atom_type   periphery(0 or -1)   x   y   z
         """
         init_coords = np.zeros((self.N, 3))
-        periphery = np.zeros((self.N, 1))
-        atom_types = np.zeros((self.N, 1))
+        periphery = np.zeros((self.N, ), dtype='int8')
+        atom_types = np.zeros((self.N, ), dtype='int8')
         atom_ind = 0
         with open(coord_f) as f:
             for line in f:
@@ -195,15 +201,46 @@ class EF_TSS:
         """
         Submit a gaussian job for input file self.gjf_dir. Returns 0 for successful and 1 for failed jobs.
         """
-        return 0
+        subprocess.run('{} {} {}'.format(self.submit_dir ,self.gjf_dir, self.log_dir), shell=True, check=True)
+        with open(self.log_dir) as f:
+            f_cnt = f.readlines()
+            if all(i in f_cnt[-1].split() for i in ['Normal', 'Termination']):
+                return 0
+            else:
+                return 1
     
-    def _write_gaussian(self, struct) -> None:
+    def _write_gaussian(self, struct, c_type='h') -> None: # Tested: works
         """
         write a freq calculation g16 input file with struct coords and self.basis for basis.
         """
-        pass
+        str_list = ["%NProcShared={}\n".format(self.N_procs),
+        "%chk={}\n".format(self.chk_dir),
+        "{}\n".format(self.hess_calc_header if c_type == 'h' else self.force_calc_header),
+        "\n",
+        "EF-TSS-calc-{}\n".format(c_type),
+        "\n",
+        "{} {}\n".format(self.charge, self.spin)
+        ]
 
-    def _write_history(self, struct) -> None: # Tested
+        for i in range(self.N):
+            str_list.append("{}\t{}\t{}\t{}\t{}\n". format(self.atom_types[i], self.periphery[i], struct[i][0], struct[i][1], struct[i][2]))
+        
+        str_list.append("\n")
+
+        if self.basis_dir != '':
+            with open(self.basis_dir) as f:
+                basis_list = f.readlines()
+
+        str_list += basis_list
+        str_list.append("\n")
+        str_list.append("\n")
+
+        with open(self.gjf_dir, 'w') as f:
+            f.writelines(str_list)
+
+        return
+
+    def _write_history(self, struct) -> None: # Tested: works
         """
         write struct to .xyz file (self.hist_file).
         """
