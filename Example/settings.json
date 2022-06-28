@@ -1,0 +1,15 @@
+{
+    "N": 3,
+    "working-dir": ".",
+    "submit-f-dir": "./submit-g16",
+    "gaussian-f-name": "test", 
+    "charge": 0,
+    "spin": 1,
+    "N-procs": 8,
+    "max-iter": 100,
+    "energy-header-calc": "#P wB97XD/6-31G**",
+    "hess-header-calc": "#P wB97XD/6-31G** nosymm freq",
+    "trust-radius": 0.5,
+    "conv-radius": 1e-3,
+    "conv-grad": 1e-6
+}
