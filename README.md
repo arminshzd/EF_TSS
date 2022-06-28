@@ -36,4 +36,4 @@ Input coordinates file should have the format:
 There's an example calculation for HCN available under the `HCN` directory. The `EF_TSS.py` should either be added to PATH or copied to the same directory as the test script.
 
 ## (__VERY IMPORTANT__) Note
-I coded this to use for one of my research projects but ended up not needing it. As a result, this code is __not__ thoroughly tested (especially Bofill's Hessian update subroutine). Be careful if you happened to stumble upon this code and decided to use it. There is a C implementation of this method ![here](https://gitlab.engr.illinois.edu/double-dagger/ef-tss). The C implementation is faster and more thouroughly tested.
+I coded this to use for one of my research projects but ended up not needing it. As a result, this code is __not__ thoroughly tested (especially Bofill's Hessian update subroutine). Be careful if you happened to stumble upon this code and decided to use it. There is a C implementation of this method [here](https://gitlab.engr.illinois.edu/double-dagger/ef-tss) which is faster and more thouroughly tested.
