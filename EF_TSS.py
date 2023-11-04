@@ -10,7 +10,7 @@ from scipy.optimize import fsolve
 class EF_TSS:
     """
     """
-    def __init__(self, settings_json, initial_structure) -> None: # NOT DONE
+    def __init__(self, settings_json, initial_structure) -> None:
         # Read the setting from the setting.json file
         with open(settings_json) as f:
             settings_dict_in = json.load(f)
@@ -72,7 +72,7 @@ class EF_TSS:
         self.R_trust = settings_dict['trust-radius'] if not (settings_dict['trust-radius'] == '') else 0.15
         self.bofill_params = {"Sf": 2, "Lb": 0, "Ub": 2, "r_l": 0.25, "r_u": 1.75, "R_1": self.R_trust}
         
-    def _read_coords(self, coord_f): # Tested: Works
+    def _read_coords(self, coord_f):
         """
         Reads geometric data from .inp file with exactly self.N lines with format:
         atom_type   periphery(0 or -1)   x   y   z
@@ -122,7 +122,7 @@ class EF_TSS:
         
         return padded_dx
 
-    def _get_grad(self, inplace=True) -> np.array: # Tested: Works
+    def _get_grad(self, inplace=True) -> np.array:
         with open(self.fchk_dir) as f:
             f_cnt = f.readlines()
             for ind, line in enumerate(f_cnt):
@@ -151,7 +151,7 @@ class EF_TSS:
         else:
             return G_out
 
-    def _get_hessian(self) -> None: # Tested: Works
+    def _get_hessian(self) -> None:
         with open(self.fchk_dir) as f:
             f_cnt = f.readlines()
             for ind, line in enumerate(f_cnt):
@@ -183,7 +183,7 @@ class EF_TSS:
 
         return
             
-    def _get_energy(self, inplace=True) -> float: # Not Tested
+    def _get_energy(self, inplace=True) -> float:
         """
         Get SCF energy from fchk file.
         """
@@ -203,7 +203,7 @@ class EF_TSS:
         else:
             return float(E_list[-1])
 
-    def _get_lamda_bath(self, gamma, evals, mode) -> float: # Tested: Looks fine for now
+    def _get_lamda_bath(self, gamma, evals, mode) -> float:
         """
         Find lambda_BATH. Returns smallest root of equation 8.3.1 from Reaction Rate Theory and Rare Events.
         Gamma: Grad in eigenvector basis. 1xN vector.
@@ -217,11 +217,10 @@ class EF_TSS:
         evals_no_k.pop(mode)
         evals_no_k = [i for i in evals_no_k if i!=0]
 
-        # Instead of solving for all roots, just start with the minimum guess?
+        # Instead of solving for all roots, just start with the minimum guess.
         init_guess = [1.1*i for i in evals_no_k]
         init_guess.insert(0, 0)
         init_guess = list(set(init_guess))
-        #init_guess = [min([0, 1.1*min(evals_no_k)])]
         res = []
 
         def _func(x):
@@ -232,7 +231,7 @@ class EF_TSS:
 
         return min(res)
 
-    def _get_lambda_RC(self, gamma_k, evals_k) -> float:  # Tested: Looks fine for now 
+    def _get_lambda_RC(self, gamma_k, evals_k) -> float:
         """
         Find lambda_RC. Returns biggest root of equation 8.3.2 from Reaction Rate Theory and Rare Events.
         Gamma: Grad in eigenvector basis. 1xN vector.
@@ -249,7 +248,7 @@ class EF_TSS:
             
         return max(res)
 
-    def _get_ksi(self, evals, gamma, mode) -> np.array: # Tested: Looks fine for now
+    def _get_ksi(self, evals, gamma, mode) -> np.array:
         """
         Get ksi vector as defined by equation 8.3.3 from Reaction Rate Theory and Rare Events.
         evals: eigenvalues of the Hessian. 1xN vector
@@ -268,7 +267,7 @@ class EF_TSS:
         
         return ksi
 
-    def _get_H_estim(self) -> None: # Not tested
+    def _get_H_estim(self) -> None:
         """Calculate and set self.H from Bofill's method to estimate Hessian
         Returns:
             None
@@ -305,7 +304,7 @@ class EF_TSS:
                     return 0
             return 1
     
-    def _write_gaussian(self, struct, c_type='H') -> None: # Tested: works
+    def _write_gaussian(self, struct, c_type='H') -> None:
         """
         write a freq calculation g16 input file with struct coords and self.basis for basis.
         """
@@ -337,7 +336,7 @@ class EF_TSS:
 
         return
 
-    def _write_history(self, struct, fname) -> None: # Tested: works
+    def _write_history(self, struct, fname) -> None:
         """
         write struct to .xyz file.
         """
@@ -353,7 +352,7 @@ class EF_TSS:
 
         return
 
-    def run(self) -> np.array: # Not tested
+    def run(self) -> np.array:
         """
         Run the EF-TSS algorithm with the initialized structure and parameters.
         """
@@ -417,8 +416,6 @@ class EF_TSS:
 
             evals, U = np.linalg.eig(self.H) ## U^T H U = evals
 
-            # TODO Tricky: find a way to select the correct eigenvalue for the transition path....
-            #mode = np.where(evals == sorted(evals, reverse=True, key=lambda x: abs(x))[1])[0][0]
             if iter == 1:
                 print(evals.squeeze())
                 print(sorted(evals.squeeze(), reverse=True))
