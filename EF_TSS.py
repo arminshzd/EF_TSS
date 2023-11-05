@@ -282,7 +282,7 @@ class EF_TSS:
         self.H = (1-phi_k)*B_ms + phi_k*B_p
         return
 
-    def _get_g_estim(self) -> None: # Wrong!
+    def _get_g_estim(self) -> None:
         """Numerically estimate gradient from dE/dx"""
         loc_dx = self.dx[:self.num_moving_atoms]
         loc_G = (self.E - self.E_old)*np.ones_like(loc_dx)/loc_dx
