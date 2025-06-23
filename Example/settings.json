@@ -2,7 +2,7 @@
     "N": 3,
     "working-dir": ".",
     "submit-f-dir": "./submit-g16",
-    "gaussian-f-name": "test", 
+    "gaussian-f-name": "HCN", 
     "charge": 0,
     "spin": 1,
     "N-procs": 8,
