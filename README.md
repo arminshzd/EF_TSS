@@ -1,8 +1,18 @@
 # Eigen Vector Following Trasition State Search Algorithm
 Eigen vector following transition state search method based on PRFO method and Bofill's Hessian estimation using GAUSSIAN as calculation engine.
 
+## Installation:
+to install, clone the repository
+```
+git clone https://github.com/arminshzd/EF_TSS.git
+```
+and install from inside the `EF_TSS` directory using `pip`
+```
+pip install .
+```
+
 ## Usage:
-Create a `CM_TSS` object and pass the path to the `settings.json` file and the path to an initial structure. The `settings.json` file is formated as (default values in parantheses):
+Create a `CM_TSS` object and pass the path to the `settings.json` file and the path to an initial structure. The `settings.json` file is formatted as (default values in parentheses):
 ```
 {
     "N": {number of atoms} (required),
@@ -24,7 +34,7 @@ Create a `CM_TSS` object and pass the path to the `settings.json` file and the p
     "hess-header-calc": {GAUSSIAN header for Hessian calculations } ("#P b3lyp/6-31G** nosymm freq"),
 }
 ```
-A GAUSSIAN submission script is necessary. This is a system depandant file.
+A GAUSSIAN submission script is necessary. This is a system dependent file.
 
 `basis-f-name` is the name of the file containing basis specifications if necessary and will be added to the bottom of the GAUSSIAN input file.
 
@@ -33,4 +43,10 @@ Input coordinates file should have the format:
 {atomic number} {-1 for frozen 0 otherwise} {x} {y} {z}
 ```
 
-There's an example calculation for HCN available under the `HCN` directory. The `EF_TSS.py` should either be added to PATH or copied to the same directory as the test script.
+There's an example calculation for HCN available under the `example` directory. The `EF_TSS.py` should either be added to PATH or copied to the same directory as the test script.
+
+Unit tests are available under `tests` directory and can be run from the `EF_TSS` directory using
+```
+pytest tests/
+```
+(requires `pytest` to be installed in your environment)
